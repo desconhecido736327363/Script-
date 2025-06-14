@@ -1,6 +1,6 @@
 --!strict
 -- Nome do seu Script/Hub: ReaperHub
--- Versão: 2.4 (Depurando "attempt to index nil with 'Name'" e testando visibilidade)
+-- Versão: 2.5 (Depurando erro na linha 11 e visibilidade do ícone)
 
 -- [INÍCIO] --- CARREGAMENTO DA BIBLIOTECA FLUENT (NÃO REMOVA) ---
 local timestamp_fluent = os.time() -- timestamp para forçar cache buster na Fluent
@@ -14,10 +14,12 @@ if not (type(Fluent) == "table" and type(Fluent.CreateWindow) == "function") the
     warn("Erro: A biblioteca Fluent n\227o carregou corretamente. Fun\231\245es de UI podem estar ausentes.")
     return -- Interrompe o script se a Fluent não carregar, para evitar mais erros
 end
+print("Fluent carregado com sucesso, prosseguindo com SaveManager e InterfaceManager.")
 
 -- Os SaveManager e InterfaceManager também dependem da Fluent, vamos garantir que eles também carreguem via HTTPS
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua?v=" .. timestamp_fluent))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua?v=" .. timestamp_fluent))()
+print("SaveManager e InterfaceManager carregados.")
 -- [FIM] --- CARREGAMENTO DA BIBLIOTECA FLUENT ---
 
 -- ====================================================================================================
@@ -25,18 +27,17 @@ local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.
 -- ====================================================================================================
 
 -- [INÍCIO] --- REFERÊNCIA AO SEU HUB VISUAL (MUITO IMPORTANTE!) ---
--- Este código irá CRIAR um Frame simples para você testar as mudanças de cor/transparência.
 local SeuHub = Instance.new("Frame")
-SeuHub.Name = "ReaperVisualHub" -- Nome do Frame que será criado para o seu Hub
-SeuHub.Parent = game.Players.LocalPlayer.PlayerGui -- Coloca o Frame na PlayerGui
-SeuHub.Size = UDim2.new(0.3, 0, 0.5, 0) -- Tamanho do Frame (30% da largura, 50% da altura da tela)
-SeuHub.Position = UDim2.new(0.5, 0, 0.5, 0) -- Posição (centralizado)
-SeuHub.BackgroundColor3 = Color3.fromRGB(50, 50, 50) -- Cor inicial padrão (será alterada pelas opções)
-SeuHub.BorderSizePixel = 0 -- Remove a borda padrão
-SeuHub.AnchorPoint = Vector2.new(0.5, 0.5) -- Define o ponto de âncora para centralização
-SeuHub.Visible = true -- Garante que esteja visível por padrão
+SeuHub.Name = "ReaperVisualHub"
+SeuHub.Parent = game.Players.LocalPlayer.PlayerGui
+SeuHub.Size = UDim2.new(0.3, 0, 0.5, 0)
+SeuHub.Position = UDim2.new(0.5, 0, 0.5, 0)
+SeuHub.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+SeuHub.BorderSizePixel = 0
+SeuHub.AnchorPoint = Vector2.new(0.5, 0.5)
+SeuHub.Visible = true
+print("SeuHub (Frame visual) criado e visível.")
 
--- Adicionar um texto de exemplo ao SeuHub
 local HubText = Instance.new("TextLabel")
 HubText.Text = "Meu Hub de Teste"
 HubText.Size = UDim2.new(1, 0, 1, 0)
@@ -55,18 +56,22 @@ MinimizedBox.Position = UDim2.new(0.01, 0, 0.5, 0) -- Posição inicial (canto e
 MinimizedBox.BackgroundTransparency = 1 -- Fundo transparente para mostrar apenas a imagem
 MinimizedBox.Image = "rbxassetid://105362230092644" -- SEU ASSET ID AGORA ESTÁ AQUI!
 MinimizedBox.ImageTransparency = 0 -- Imagem totalmente visível
-MinimizedBox.Visible = false -- Inicia invisível
+MinimizedBox.Visible = true -- TEMPORARIAMENTE: Começa visível para depuração
 MinimizedBox.Parent = game.Players.LocalPlayer.PlayerGui
+print("MinimizedBox (ícone de minimizar) criado. Visibilidade inicial:", MinimizedBox.Visible)
+print("MinimizedBox AbsolutePosition:", MinimizedBox.AbsolutePosition)
+print("MinimizedBox AbsoluteSize:", MinimizedBox.AbsoluteSize)
 
--- Propriedades visuais do ícone (mantidas para consistência, mas podem ser ajustadas para a imagem)
 local UICornerMinimize = Instance.new("UICorner")
-UICornerMinimize.CornerRadius = UDim.new(0.5, 0) -- Corrigido para UDim
+UICornerMinimize.CornerRadius = UDim.new(0.5, 0)
 UICornerMinimize.Parent = MinimizedBox
+print("UICorner para MinimizedBox criado.")
 
 local UIStrokeMinimize = Instance.new("UIStroke")
 UIStrokeMinimize.Color = Color3.fromRGB(0, 120, 212)
 UIStrokeMinimize.Thickness = 2
 UIStrokeMinimize.Parent = MinimizedBox
+print("UIStroke para MinimizedBox criado.")
 
 -- Lógica para arrastar o ícone
 local UserInputService = game:GetService("UserInputService")
@@ -79,7 +84,8 @@ MinimizedBox.InputBegan:Connect(function(input)
         dragging = true
         dragStart = input.Position
         initialPosition = MinimizedBox.Position
-        input.Handled = true -- Impede que cliques passem para outros elementos
+        input.Handled = true
+        print("Arrastando MinimizedBox: INICIADO")
     end
 end)
 
@@ -90,7 +96,6 @@ MinimizedBox.InputChanged:Connect(function(input)
             local newX = initialPosition.X.Offset + delta.X
             local newY = initialPosition.Y.Offset + delta.Y
 
-            -- Limitar o ícone dentro da tela
             local screenX = game.Players.LocalPlayer.PlayerGui.AbsoluteSize.X
             local screenY = game.Players.LocalPlayer.PlayerGui.AbsoluteSize.Y
             local iconSizeX = MinimizedBox.AbsoluteSize.X
@@ -107,6 +112,7 @@ end)
 MinimizedBox.InputEnded:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
         dragging = false
+        print("Arrastando MinimizedBox: ENCERRADO")
     end
 end)
 
@@ -117,7 +123,6 @@ end)
 -- ====================================================================================================
 
 -- [INÍCIO] --- CONFIGURAÇÃO DA JANELA PRINCIPAL ---
--- Verifica se Fluent existe antes de tentar criar a janela
 local Window
 if Fluent and type(Fluent.CreateWindow) == "function" then
     Window = Fluent:CreateWindow({
@@ -127,12 +132,11 @@ if Fluent and type(Fluent.CreateWindow) == "function" then
         Size = UDim2.fromOffset(580, 460),
         Acrylic = true,
         Theme = "Dark",
-        -- REMOVIDO: MinimizeKey = Enum.KeyCode.LeftControl - Vamos gerenciar manualmente
     })
+    print("Janela Fluent UI (Window) criada.")
 else
     warn("Fluent.CreateWindow is not available. UI Window will not be created.")
-    -- Pode adicionar uma GUI de fallback aqui se a Fluent falhar completamente
-    return -- Interrompe o script se a janela principal não puder ser criada
+    return
 end
 -- [FIM] --- CONFIGURAÇÃO DA JANELA PRINCIPAL ---
 
@@ -141,9 +145,11 @@ local Tabs = {
     Main = Window:AddTab({ Title = "Main", Icon = "" }),
     Settings = Window:AddTab({ Title = "Configurações", Icon = "" })
 }
+print("Abas Main e Configurações criadas.")
 -- [FIM] --- CRIAÇÃO DAS ABAS ---
 
 local Options = Fluent.Options
+print("Fluent.Options referenciado.")
 
 -- [INÍCIO] --- CONTEÚDO DA ABA 'MAIN' ---
 do
@@ -154,69 +160,72 @@ end
 
 -- [INÍCIO] --- CONTEÚDO DA ABA 'CONFIGURAÇÕES' (AGORA VAZIA) ---
 do
-    -- Todo o conteúdo anterior da aba 'Configurações' foi removido aqui.
-    -- Se quiser adicionar algo no futuro, pode fazer aqui.
+    -- Sem conteúdo
 end
 -- [FIM] --- CONTEÚDO DA ABA 'CONFIGURAÇÕES' ---
 
 
 -- [INÍCIO] --- FUNCIONALIDADE DE MINIMIZAR/RESTAURAR MANUALMENTE ---
--- Variável para rastrear o estado atual da UI (visível ou minimizada)
 local isUIVisible = true
 
--- Evento para detectar o pressionar da tecla LeftControl
 UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
-    -- Verifica se a tecla LeftControl foi pressionada e se o evento não foi processado pelo jogo
     if input.KeyCode == Enum.KeyCode.LeftControl and not gameProcessedEvent then
         if isUIVisible then
-            -- Se a UI estiver visível, minimiza
-            Window:Hide() -- Esconde a janela Fluent
-            MinimizedBox.Visible = true -- Torna o ícone flutuante visível
-            SeuHub.Visible = false -- Esconde o Hub visual de teste
+            print("LeftControl pressionado: Minimizando UI.")
+            Window:Hide()
+            MinimizedBox.Visible = true
+            SeuHub.Visible = false
             isUIVisible = false
+            print("UI minimizada. MinimizedBox.Visible =", MinimizedBox.Visible)
         else
-            -- Se a UI estiver minimizada, restaura
-            Window:Show() -- Reabre a janela Fluent
-            MinimizedBox.Visible = false -- Esconde o ícone flutuante
-            SeuHub.Visible = true -- Torna o Hub visual de teste visível
+            print("LeftControl pressionado: Restaurando UI.")
+            Window:Show()
+            MinimizedBox.Visible = false
+            SeuHub.Visible = true
             isUIVisible = true
+            print("UI restaurada. MinimizedBox.Visible =", MinimizedBox.Visible)
         end
     end
 end)
 
--- Evento de clique no ícone para restaurar a janela
 MinimizedBox.MouseButton1Click:Connect(function()
-    -- Certifica-se de que não estamos arrastando quando o clique é liberado
     if not dragging then
-        Window:Show() -- Reabre a janela Fluent
-        MinimizedBox.Visible = false -- Esconde o ícone flutuante
-        SeuHub.Visible = true -- Torna o Hub visual de teste visível
+        print("MinimizedBox clicado: Restaurando UI.")
+        Window:Show()
+        MinimizedBox.Visible = false
+        SeuHub.Visible = true
         isUIVisible = true
+        print("UI restaurada via clique. MinimizedBox.Visible =", MinimizedBox.Visible)
     end
 end)
 -- [FIM] --- FUNCIONALIDADE DE MINIMIZAR/RESTAURAR MANUALMENTE ---
 
 
 -- [INÍCIO] --- CONFIGURAÇÃO E INTEGRAÇÃO DE ADD-ONS ---
--- As chamadas BuildInterfaceSection e BuildConfigSection para a aba Settings foram removidas daqui.
 SaveManager:SetLibrary(Fluent)
 InterfaceManager:SetLibrary(Fluent)
+print("SaveManager e InterfaceManager configurados com a biblioteca Fluent.")
 
 SaveManager:IgnoreThemeSettings()
+print("SaveManager configurado para ignorar temas.")
 
 InterfaceManager:SetFolder("ReaperHubSettings")
 SaveManager:SetFolder("ReaperHubSettings/ConfiguracoesReaper")
+print("Pastas de configura\231\245es definidas.")
 -- [FIM] --- CONFIGURAÇÃO E INTEGRAÇÃO DE ADD-ONS ---
 
 
 -- [INÍCIO] --- CONFIGURAÇÕES FINAIS E NOTIFICAÇÃO ---
 Window:SelectTab(Tabs.Main)
+print("Aba Main selecionada.")
 
 Fluent:Notify({
     Title = "Reaper Ativo",
     Content = "O Hub Reaper foi carregado com sucesso!",
     Duration = 5
 })
+print("Notifica\231\227o 'Reaper Ativo' enviada.")
 
 SaveManager:LoadAutoloadConfig()
+print("Configura\231\245es de autoload carregadas.")
 -- [FIM] --- CONFIGURAÇÕES FINAIS E NOTIFICAÇÃO ---
