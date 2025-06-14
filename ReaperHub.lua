@@ -1,6 +1,6 @@
 --!strict
 -- Nome do seu Script/Hub: ReaperHub
--- Versão: 1.8 (Ícone de minimizar arrastável)
+-- Versão: 1.9.1 (Ícone de minimizar com Asset ID definido)
 
 -- [INÍCIO] --- CARREGAMENTO DA BIBLIOTECA FLUENT (NÃO REMOVA) ---
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
@@ -35,21 +35,18 @@ HubText.TextSize = 20
 HubText.Parent = SeuHub
 -- [FIM] --- REFERÊNCIA AO SEU HUB VISUAL ---
 
--- [INÍCIO] --- CRIAÇÃO DO ÍCONE FLUTUANTE DE MINIMIZAR (Texto Arrastável) ---
-local MinimizedBox = Instance.new("TextButton")
+-- [INÍCIO] --- CRIAÇÃO DO ÍCONE FLUTUANTE DE MINIMIZAR (Imagem Arrastável) ---
+local MinimizedBox = Instance.new("ImageButton")
 MinimizedBox.Name = "ReaperMinimizedIcon"
 MinimizedBox.Size = UDim2.new(0, 50, 0, 50)
 MinimizedBox.Position = UDim2.new(0.01, 0, 0.5, 0) -- Posição inicial (canto esquerdo-meio)
-MinimizedBox.BackgroundColor3 = Color3.fromRGB(96, 205, 255)
-MinimizedBox.BackgroundTransparency = 0.2
-MinimizedBox.Text = "R"
-MinimizedBox.TextColor3 = Color3.new(1,1,1)
-MinimizedBox.Font = Enum.Font.SourceSansBold
-MinimizedBox.TextSize = 24
+MinimizedBox.BackgroundTransparency = 1 -- Fundo transparente para mostrar apenas a imagem
+MinimizedBox.Image = "rbxassetid://105362230092644" -- <<< SEU ASSET ID AGORA ESTÁ AQUI!
+MinimizedBox.ImageTransparency = 0 -- Imagem totalmente visível
 MinimizedBox.Visible = false
 MinimizedBox.Parent = game.Players.LocalPlayer.PlayerGui
 
--- Propriedades visuais do ícone
+-- Propriedades visuais do ícone (mantidas para consistência, mas podem ser ajustadas para a imagem)
 local UICornerMinimize = Instance.new("UICorner")
 UICornerMinimize.CornerRadius = UDim.new(0.5, 0)
 UICornerMinimize.Parent = MinimizedBox
