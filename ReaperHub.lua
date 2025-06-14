@@ -1,6 +1,6 @@
 --!strict
 -- Nome do seu Script/Hub: ReaperHub
--- Versão: 2.1 (Tentativa de carregar Fluent de URL de versão específica + Debugging)
+-- Versão: 2.2 (Revisão da lógica de minimizar/restaurar e visibilidade)
 
 -- [INÍCIO] --- CARREGAMENTO DA BIBLIOTECA FLUENT (NÃO REMOVA) ---
 local timestamp_fluent = os.time() -- timestamp para forçar cache buster na Fluent
@@ -59,7 +59,9 @@ MinimizedBox.Parent = game.Players.LocalPlayer.PlayerGui
 
 -- Propriedades visuais do ícone (mantidas para consistência, mas podem ser ajustadas para a imagem)
 local UICornerMinimize = Instance.new("UICorner")
-UICornerMinimize.CornerRadius = UDim.new(0.5, 0)
+-- UICorner.CornerRadius espera UDim, mas você passou UDim2 anteriormente.
+-- Isso pode ter causado um erro silencioso ou o elemento não aparecendo corretamente.
+UICornerMinimize.CornerRadius = UDim.new(0.5, 0) -- Corrigido para UDim
 UICornerMinimize.Parent = MinimizedBox
 
 local UIStrokeMinimize = Instance.new("UIStroke")
@@ -152,20 +154,25 @@ end
 
 
 -- [INÍCIO] --- FUNCIONALIDADE DE MINIMIZAR/RESTAURAR MANUALMENTE ---
+-- Variável para rastrear o estado atual da UI (visível ou minimizada)
+local isUIVisible = true
+
 -- Evento para detectar o pressionar da tecla LeftControl
 UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
     -- Verifica se a tecla LeftControl foi pressionada e se o evento não foi processado pelo jogo
     if input.KeyCode == Enum.KeyCode.LeftControl and not gameProcessedEvent then
-        if Window.Visible then
-            -- Se a janela estiver visível, minimiza
+        if isUIVisible then
+            -- Se a UI estiver visível, minimiza
             Window:Hide() -- Esconde a janela Fluent
             MinimizedBox.Visible = true -- Torna o ícone flutuante visível
             SeuHub.Visible = false -- Esconde o Hub visual de teste
+            isUIVisible = false
         else
-            -- Se a janela estiver invisível, restaura
+            -- Se a UI estiver minimizada, restaura
             Window:Show() -- Reabre a janela Fluent
             MinimizedBox.Visible = false -- Esconde o ícone flutuante
             SeuHub.Visible = true -- Torna o Hub visual de teste visível
+            isUIVisible = true
         end
     end
 end)
@@ -177,6 +184,7 @@ MinimizedBox.MouseButton1Click:Connect(function()
         Window:Show() -- Reabre a janela Fluent
         MinimizedBox.Visible = false -- Esconde o ícone flutuante
         SeuHub.Visible = true -- Torna o Hub visual de teste visível
+        isUIVisible = true
     end
 end)
 -- [FIM] --- FUNCIONALIDADE DE MINIMIZAR/RESTAURAR MANUALMENTE ---
