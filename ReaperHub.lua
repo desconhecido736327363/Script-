@@ -1,6 +1,6 @@
 --!strict
 -- Nome do seu Script/Hub: ReaperHub
--- Versão: 1.5 (Removidas as funcionalidades de imagem/tema/ícone personalizado)
+-- Versão: 1.6 (Correção do erro CornerRadius)
 
 -- [INÍCIO] --- CARREGAMENTO DA BIBLIOTECA FLUENT (NÃO REMOVA) ---
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
@@ -36,26 +36,26 @@ HubText.Parent = SeuHub
 -- [FIM] --- REFERÊNCIA AO SEU HUB VISUAL ---
 
 -- [INÍCIO] --- CRIAÇÃO DO ÍCONE FLUTUANTE DE MINIMIZAR (Texto) ---
-local MinimizedBox = Instance.new("TextButton") -- De volta para TextButton
+local MinimizedBox = Instance.new("TextButton")
 MinimizedBox.Name = "ReaperMinimizedIcon"
-MinimizedBox.Size = UDim2.new(0, 50, 0, 50) -- Tamanho do quadrado flutuante
-MinimizedBox.Position = UDim2.new(0.01, 0, 0.5, 0) -- Posição inicial (canto esquerdo-meio)
-MinimizedBox.BackgroundColor3 = Color3.fromRGB(96, 205, 255) -- Cor do ícone
-MinimizedBox.BackgroundTransparency = 0.2 -- Um pouco transparente
-MinimizedBox.Text = "R" -- Texto do ícone (Reaper)
+MinimizedBox.Size = UDim2.new(0, 50, 0, 50)
+MinimizedBox.Position = UDim2.new(0.01, 0, 0.5, 0)
+MinimizedBox.BackgroundColor3 = Color3.fromRGB(96, 205, 255)
+MinimizedBox.BackgroundTransparency = 0.2
+MinimizedBox.Text = "R"
 MinimizedBox.TextColor3 = Color3.new(1,1,1)
 MinimizedBox.Font = Enum.Font.SourceSansBold
 MinimizedBox.TextSize = 24
-MinimizedBox.Visible = false -- Começa invisível
-MinimizedBox.Parent = game.Players.LocalPlayer.PlayerGui -- Coloca na PlayerGui
+MinimizedBox.Visible = false
+MinimizedBox.Parent = game.Players.LocalPlayer.PlayerGui
 
--- Adicionar Corners e Strokes para o Fluent Design
+-- Corrigido: CornerRadius agora usa UDim em vez de UDim2
 local UICornerMinimize = Instance.new("UICorner")
-UICornerMinimize.CornerRadius = UDim2.new(0.5, 0) -- Torna-o circular
+UICornerMinimize.CornerRadius = UDim.new(0.5, 0) -- CORREÇÃO AQUI: UDim.new(scale, offset)
 UICornerMinimize.Parent = MinimizedBox
 
 local UIStrokeMinimize = Instance.new("UIStroke")
-UIStrokeMinimize.Color = Color3.fromRGB(0, 120, 212) -- Cor da borda
+UIStrokeMinimize.Color = Color3.fromRGB(0, 120, 212)
 UIStrokeMinimize.Thickness = 2
 UIStrokeMinimize.Parent = MinimizedBox
 -- [FIM] --- CRIAÇÃO DO ÍCONE FLUTUANTE DE MINIMIZAR ---
@@ -74,8 +74,6 @@ local Window = Fluent:CreateWindow({
     Theme = "Dark",
     MinimizeKey = Enum.KeyCode.LeftControl
 })
-
--- REMOVIDO: Código de BackgroundImage
 -- [FIM] --- CONFIGURAÇÃO DA JANELA PRINCIPAL ---
 
 -- [INÍCIO] --- CRIAÇÃO DAS ABAS ---
@@ -103,16 +101,16 @@ do
 
     -- Cores pré-definidas (os valores Color3.fromRGB() são as cores RGB)
     local predefinedColors = {
-        {"Azul Claro", Color3.fromRGB(96, 205, 255)},    -- Azul
-        {"Verde", Color3.fromRGB(100, 200, 100)},       -- Verde
-        {"Vermelho", Color3.fromRGB(200, 80, 80)},      -- Vermelho
-        {"Amarelo", Color3.fromRGB(255, 255, 100)},     -- Amarelo
-        {"Roxo", Color3.fromRGB(150, 100, 200)}         -- Roxo
+        {"Azul Claro", Color3.fromRGB(96, 205, 255)},
+        {"Verde", Color3.fromRGB(100, 200, 100)},
+        {"Vermelho", Color3.fromRGB(200, 80, 80)},
+        {"Amarelo", Color3.fromRGB(255, 255, 100)},
+        {"Roxo", Color3.fromRGB(150, 100, 200)}
     }
 
     -- Mapeia os nomes das cores para os valores Color3
     local colorMap = {}
-    local defaultColorName = predefinedColors[1][1] -- Pega o nome da primeira cor como padrão
+    local defaultColorName = predefinedColors[1][1]
     for _, colorInfo in ipairs(predefinedColors) do
         colorMap[colorInfo[1]] = colorInfo[2]
     end
@@ -120,8 +118,8 @@ do
     -- Seletor de cor para o hub (Dropdown)
     local HubColorDropdown = Tabs.Settings:AddDropdown("HubColor", {
         Title = "Cor do Hub",
-        Default = defaultColorName, -- Usa o nome da cor padrão
-        Values = (function() -- Gera a lista de nomes para o dropdown
+        Default = defaultColorName,
+        Values = (function()
             local names = {}
             for _, colorInfo in ipairs(predefinedColors) do
                 table.insert(names, colorInfo[1])
@@ -141,10 +139,10 @@ do
     local HubTransparencySlider = Tabs.Settings:AddSlider("HubTransparency", {
         Title = "Transparência do Hub",
         Description = "Ajuste a transparência geral do Hub (100% visível a 10% visível).",
-        Default = 100, -- Representa 100% de visibilidade
-        Min = 10, -- Mínimo 10% de visibilidade
-        Max = 100, -- Máximo 100% de visibilidade
-        Rounding = 0, -- Sem casas decimais para pular de 10 em 10
+        Default = 100,
+        Min = 10,
+        Max = 100,
+        Rounding = 0,
         Compact = false,
         Callback = function(Value)
             local transparency = 1 - (Value / 100)
@@ -164,20 +162,20 @@ end
 -- [INÍCIO] --- FUNCIONALIDADE DE MINIMIZAR PARA ÍCONE FLUTUANTE ---
 -- Evento de clique para reabrir a janela
 MinimizedBox.MouseButton1Click:Connect(function()
-    Window:Show() -- Reabre a janela Fluent
-    MinimizedBox.Visible = false -- Esconde o ícone flutuante
+    Window:Show()
+    MinimizedBox.Visible = false
 end)
 
 -- Sobrescrevendo a função de minimizar padrão da Fluent
 Window:OnMinimize(function()
-    MinimizedBox.Visible = true -- Torna o ícone flutuante visível
-    -- SeuHub.Visible = false -- Opcional: Descomente para esconder o frame de teste ao minimizar
+    MinimizedBox.Visible = true
+    -- SeuHub.Visible = false
 end)
 
 -- Certificar que o ícone é escondido quando a janela está visível (ex: ao carregar ou reabrir)
 Window:OnShow(function()
     MinimizedBox.Visible = false
-    -- SeuHub.Visible = true -- Opcional: Descomente para mostrar o frame de teste ao reabrir
+    -- SeuHub.Visible = true
 end)
 -- [FIM] --- FUNCIONALIDADE DE MINIMIZAR PARA ÍCONE FLUTUANTE ---
 
