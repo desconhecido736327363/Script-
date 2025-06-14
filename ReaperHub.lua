@@ -1,13 +1,14 @@
 --!strict
 -- Nome do seu Script/Hub: ReaperHub
--- Versão: 2.13 (Ajuste para AddTextBox e depuração de visibilidade)
+-- Versão: 2.14 (Última tentativa de forçar atualização e compatibilidade)
 
 -- [INÍCIO] --- CARREGAMENTO DA BIBLIOTECA FLUENT (NÃO REMOVA) ---
 local timestamp_fluent = os.time() -- timestamp para forçar cache buster na Fluent
--- *** Usando a URL do branch 'master' para garantir a versão mais recente ***
+-- Usando a URL do branch 'master' para garantir a versão mais recente
 local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/main.lua?v=" .. timestamp_fluent))()
 
 -- Debugging: Verificar se Fluent carregou corretamente
+print("--- Fluent v2.14: Carregamento verificado ---") -- Marcador de versão 2.14
 print("Fluent loaded status: type=", type(Fluent), "is table=", (type(Fluent) == "table"), "has CreateWindow=", (type(Fluent).CreateWindow ~= nil and type(Fluent.CreateWindow) == "function"))
 if not (type(Fluent) == "table" and type(Fluent.CreateWindow) == "function") then
     warn("Fluent UI library failed to load or is incomplete. Minimizing functionality may not be expected.")
