@@ -1,11 +1,20 @@
 --!strict
 -- Nome do seu Script/Hub: ReaperHub
--- Versão: 1.9.4 (Corrigindo HTTP 404 - Fluent URL Original com Cache Buster Reforçado)
+-- Versão: 2.1 (Tentativa de carregar Fluent de URL de versão específica + Debugging)
 
 -- [INÍCIO] --- CARREGAMENTO DA BIBLIOTECA FLUENT (NÃO REMOVA) ---
 local timestamp_fluent = os.time() -- timestamp para forçar cache buster na Fluent
--- Voltando para a URL de releases, mas com o timestamp aplicado
-local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua?v=" .. timestamp_fluent))()
+-- Tentar carregar a Fluent de uma URL de versão específica (1.1.0)
+-- Esta URL é de uma versão estável e direta do raw.githubusercontent.com
+local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/1.1.0/src/main.lua?v=" .. timestamp_fluent))()
+
+-- Debugging: Verificar se Fluent carregou corretamente
+print("Fluent loaded status: type=", type(Fluent), "is table=", (type(Fluent) == "table"), "has CreateWindow=", (type(Fluent) == "table" and type(Fluent.CreateWindow) == "function"))
+if not (type(Fluent) == "table" and type(Fluent.CreateWindow) == "function") then
+    warn("Fluent UI library failed to load or is incomplete. Minimizing functionality may not work as expected.")
+    warn("Erro: A biblioteca Fluent n\227o carregou corretamente. Fun\231\245es de UI podem estar ausentes.")
+end
+
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 -- [FIM] --- CARREGAMENTO DA BIBLIOTECA FLUENT ---
@@ -45,7 +54,7 @@ MinimizedBox.Position = UDim2.new(0.01, 0, 0.5, 0) -- Posição inicial (canto e
 MinimizedBox.BackgroundTransparency = 1 -- Fundo transparente para mostrar apenas a imagem
 MinimizedBox.Image = "rbxassetid://105362230092644" -- SEU ASSET ID AGORA ESTÁ AQUI!
 MinimizedBox.ImageTransparency = 0 -- Imagem totalmente visível
-MinimizedBox.Visible = false
+MinimizedBox.Visible = false -- Inicia invisível
 MinimizedBox.Parent = game.Players.LocalPlayer.PlayerGui
 
 -- Propriedades visuais do ícone (mantidas para consistência, mas podem ser ajustadas para a imagem)
@@ -114,7 +123,7 @@ local Window = Fluent:CreateWindow({
     Size = UDim2.fromOffset(580, 460),
     Acrylic = true,
     Theme = "Dark",
-    MinimizeKey = Enum.KeyCode.LeftControl
+    -- REMOVIDO: MinimizeKey = Enum.KeyCode.LeftControl - Vamos gerenciar manualmente
 })
 -- [FIM] --- CONFIGURAÇÃO DA JANELA PRINCIPAL ---
 
@@ -142,28 +151,35 @@ end
 -- [FIM] --- CONTEÚDO DA ABA 'CONFIGURAÇÕES' ---
 
 
--- [INÍCIO] --- FUNCIONALIDADE DE MINIMIZAR PARA ÍCONE FLUTUANTE ---
--- Evento de clique para reabrir a janela
+-- [INÍCIO] --- FUNCIONALIDADE DE MINIMIZAR/RESTAURAR MANUALMENTE ---
+-- Evento para detectar o pressionar da tecla LeftControl
+UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
+    -- Verifica se a tecla LeftControl foi pressionada e se o evento não foi processado pelo jogo
+    if input.KeyCode == Enum.KeyCode.LeftControl and not gameProcessedEvent then
+        if Window.Visible then
+            -- Se a janela estiver visível, minimiza
+            Window:Hide() -- Esconde a janela Fluent
+            MinimizedBox.Visible = true -- Torna o ícone flutuante visível
+            SeuHub.Visible = false -- Esconde o Hub visual de teste
+        else
+            -- Se a janela estiver invisível, restaura
+            Window:Show() -- Reabre a janela Fluent
+            MinimizedBox.Visible = false -- Esconde o ícone flutuante
+            SeuHub.Visible = true -- Torna o Hub visual de teste visível
+        end
+    end
+end)
+
+-- Evento de clique no ícone para restaurar a janela
 MinimizedBox.MouseButton1Click:Connect(function()
     -- Certifica-se de que não estamos arrastando quando o clique é liberado
     if not dragging then
         Window:Show() -- Reabre a janela Fluent
         MinimizedBox.Visible = false -- Esconde o ícone flutuante
+        SeuHub.Visible = true -- Torna o Hub visual de teste visível
     end
 end)
-
--- Sobrescrevendo a função de minimizar padrão da Fluent
-Window:OnMinimize(function()
-    MinimizedBox.Visible = true -- Torna o ícone flutuante visível
-    -- SeuHub.Visible = false
-end)
-
--- Certificar que o ícone é escondido quando a janela está visível (ex: ao carregar ou reabrir)
-Window:OnShow(function()
-    MinimizedBox.Visible = false
-    -- SeuHub.Visible = true
-end)
--- [FIM] --- FUNCIONALIDADE DE MINIMIZAR PARA ÍCONE FLUTUANTE ---
+-- [FIM] --- FUNCIONALIDADE DE MINIMIZAR/RESTAURAR MANUALMENTE ---
 
 
 -- [INÍCIO] --- CONFIGURAÇÃO E INTEGRAÇÃO DE ADD-ONS ---
