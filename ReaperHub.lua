@@ -1,6 +1,6 @@
 --!strict
 -- Nome do seu Script/Hub: ReaperHub
--- Versão: 1.2 (Ajuste para criar o Hub visual automaticamente)
+-- Versão: 1.3 (Cores pré-definidas, Transparência percentual, Hub Visual garantido)
 
 -- [INÍCIO] --- CARREGAMENTO DA BIBLIOTECA FLUENT (NÃO REMOVA) ---
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
@@ -16,13 +16,13 @@ local SeuHub = Instance.new("Frame")
 SeuHub.Name = "ReaperVisualHub" -- Nome do Frame que será criado para o seu Hub
 SeuHub.Parent = game.Players.LocalPlayer.PlayerGui -- Coloca o Frame na PlayerGui
 SeuHub.Size = UDim2.new(0.3, 0, 0.5, 0) -- Tamanho do Frame (30% da largura, 50% da altura da tela)
-SeuHub.Position = UDim2.new(0.35, 0, 0.25, 0) -- Posição (centralizado aproximadamente)
-SeuHub.BackgroundColor3 = Color3.fromRGB(50, 50, 50) -- Cor inicial do seu Hub visual
+SeuHub.Position = UDim2.new(0.5, 0, 0.5, 0) -- Posição (centralizado)
+SeuHub.BackgroundColor3 = Color3.fromRGB(50, 50, 50) -- Cor inicial padrão
 SeuHub.BorderSizePixel = 0 -- Remove a borda padrão
-SeuHub.AnchorPoint = Vector2.new(0.5, 0.5) -- Define o ponto de âncora para centralização mais fácil
-SeuHub.Position = UDim2.new(0.5, 0, 0.5, 0) -- Recentra após definir AnchorPoint
+SeuHub.AnchorPoint = Vector2.new(0.5, 0.5) -- Define o ponto de âncora para centralização
+SeuHub.Visible = true -- Garante que esteja visível por padrão
 
--- Você pode adicionar um texto ou algo mais ao SeuHub, se quiser:
+-- Adicionar um texto de exemplo ao SeuHub
 local HubText = Instance.new("TextLabel")
 HubText.Text = "Meu Hub de Teste"
 HubText.Size = UDim2.new(1, 0, 1, 0)
@@ -69,35 +69,64 @@ do
         Content = "Ajuste as configurações visuais do seu Hub Reaper."
     })
 
-    -- Seletor de cor para o hub
-    local HubColorpicker = Tabs.Settings:AddColorpicker("HubColor", {
+    -- Cores pré-definidas (os valores Color3.fromRGB() são as cores RGB)
+    local predefinedColors = {
+        {"Azul Claro", Color3.fromRGB(96, 205, 255)},    -- Azul
+        {"Verde", Color3.fromRGB(100, 200, 100)},       -- Verde
+        {"Vermelho", Color3.fromRGB(200, 80, 80)},      -- Vermelho
+        {"Amarelo", Color3.fromRGB(255, 255, 100)},     -- Amarelo
+        {"Roxo", Color3.fromRGB(150, 100, 200)}         -- Roxo
+    }
+
+    -- Mapeia os nomes das cores para os valores Color3
+    local colorMap = {}
+    local defaultColorName = predefinedColors[1][1] -- Pega o nome da primeira cor como padrão
+    for _, colorInfo in ipairs(predefinedColors) do
+        colorMap[colorInfo[1]] = colorInfo[2]
+    end
+
+    -- Seletor de cor para o hub (agora um Dropdown)
+    local HubColorDropdown = Tabs.Settings:AddDropdown("HubColor", {
         Title = "Cor do Hub",
-        Default = Color3.fromRGB(96, 205, 255),
-        Callback = function(Value)
-            if SeuHub and SeuHub:IsA("GuiObject") then
-                SeuHub.BackgroundColor3 = Value
+        Default = defaultColorName, -- Usa o nome da cor padrão
+        Values = (function() -- Gera a lista de nomes para o dropdown
+            local names = {}
+            for _, colorInfo in ipairs(predefinedColors) do
+                table.insert(names, colorInfo[1])
             end
-            print("Cor do Hub alterada para:", Value)
+            return names
+        end)(),
+        Callback = function(SelectedColorName)
+            local selectedColor = colorMap[SelectedColorName]
+            if SeuHub and SeuHub:IsA("GuiObject") and selectedColor then
+                SeuHub.BackgroundColor3 = selectedColor
+            end
+            print("Cor do Hub alterada para:", SelectedColorName, selectedColor)
         end
     })
 
-    -- SUBSTITUINDO O COLORPICKER DE TRANSPARÊNCIA POR UM SLIDER
+    -- Slider de Transparência (10% a 100%, pulando de 10 em 10%)
     local HubTransparencySlider = Tabs.Settings:AddSlider("HubTransparency", {
         Title = "Transparência do Hub",
         Description = "Ajuste a transparência geral do Hub (100% visível a 10% visível).",
-        Default = 1, -- Representa 100% de visibilidade (0 = totalmente transparente)
-        Min = 0.1, -- 10% de visibilidade (0.1)
-        Max = 1, -- 100% de visibilidade (1)
-        Rounding = 2, -- Duas casas decimais
+        Default = 100, -- Representa 100% de visibilidade
+        Min = 10, -- Mínimo 10% de visibilidade
+        Max = 100, -- Máximo 100% de visibilidade
+        Rounding = 0, -- Sem casas decimais para pular de 10 em 10
         Compact = false,
         Callback = function(Value)
+            -- Converte a porcentagem (10-100) para transparência (0.9 a 0)
+            -- Ex: 100% visível (Value=100) -> Transparência = 1 - (100/100) = 0
+            -- Ex: 10% visível (Value=10) -> Transparência = 1 - (10/100) = 0.9
+            local transparency = 1 - (Value / 100)
             if SeuHub and SeuHub:IsA("GuiObject") then
-                SeuHub.BackgroundTransparency = 1 - Value -- Converte valor do slider (0.1 a 1) para transparência (0.9 a 0)
+                SeuHub.BackgroundTransparency = transparency
             end
-            print("Transparência do Hub alterada para:", Value * 100 .. "% visível")
+            print("Transparência do Hub alterada para:", Value .. "% visível")
         end
     })
 
+    -- Adicionar as seções de Interface e Configurações dos Add-ons
     InterfaceManager:BuildInterfaceSection(Tabs.Settings)
     SaveManager:BuildConfigSection(Tabs.Settings)
 end
@@ -109,7 +138,7 @@ local MinimizedBox = Instance.new("TextButton")
 MinimizedBox.Name = "ReaperMinimizedIcon"
 MinimizedBox.Size = UDim2.new(0, 50, 0, 50) -- Tamanho do quadrado flutuante
 MinimizedBox.Position = UDim2.new(0.01, 0, 0.5, 0) -- Posição inicial (canto esquerdo-meio)
-MinimizedBox.BackgroundColor3 = Color3.fromRGB(96, 205, 255) -- Cor do ícone
+MinimizedBox.BackgroundColor3 = Color3.fromRGB(96, 205, 255) -- Cor inicial do ícone (pode ser ajustada)
 MinimizedBox.BackgroundTransparency = 0.2 -- Um pouco transparente
 MinimizedBox.Text = "R" -- Texto do ícone (Reaper)
 MinimizedBox.TextColor3 = Color3.new(1,1,1)
