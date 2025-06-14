@@ -1,6 +1,6 @@
 --!strict
 -- Nome do seu Script/Hub: ReaperHub
--- Versão: 2.5 (Depurando erro na linha 11 e visibilidade do ícone)
+-- Versão: 2.6 (Visibilidade final do ícone de minimizar)
 
 -- [INÍCIO] --- CARREGAMENTO DA BIBLIOTECA FLUENT (NÃO REMOVA) ---
 local timestamp_fluent = os.time() -- timestamp para forçar cache buster na Fluent
@@ -56,7 +56,7 @@ MinimizedBox.Position = UDim2.new(0.01, 0, 0.5, 0) -- Posição inicial (canto e
 MinimizedBox.BackgroundTransparency = 1 -- Fundo transparente para mostrar apenas a imagem
 MinimizedBox.Image = "rbxassetid://105362230092644" -- SEU ASSET ID AGORA ESTÁ AQUI!
 MinimizedBox.ImageTransparency = 0 -- Imagem totalmente visível
-MinimizedBox.Visible = true -- TEMPORARIAMENTE: Começa visível para depuração
+MinimizedBox.Visible = false -- DEVOLVIDO AO ESTADO INICIAL: Inicia invisível novamente
 MinimizedBox.Parent = game.Players.LocalPlayer.PlayerGui
 print("MinimizedBox (ícone de minimizar) criado. Visibilidade inicial:", MinimizedBox.Visible)
 print("MinimizedBox AbsolutePosition:", MinimizedBox.AbsolutePosition)
@@ -172,16 +172,16 @@ UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
     if input.KeyCode == Enum.KeyCode.LeftControl and not gameProcessedEvent then
         if isUIVisible then
             print("LeftControl pressionado: Minimizando UI.")
-            Window:Hide()
-            MinimizedBox.Visible = true
-            SeuHub.Visible = false
+            Window:Hide() -- Esconde a janela Fluent
+            MinimizedBox.Visible = true -- Torna o ícone flutuante visível
+            SeuHub.Visible = false -- Esconde o Hub visual de teste
             isUIVisible = false
             print("UI minimizada. MinimizedBox.Visible =", MinimizedBox.Visible)
         else
             print("LeftControl pressionado: Restaurando UI.")
-            Window:Show()
-            MinimizedBox.Visible = false
-            SeuHub.Visible = true
+            Window:Show() -- Reabre a janela Fluent
+            MinimizedBox.Visible = false -- Esconde o ícone flutuante
+            SeuHub.Visible = true -- Torna o Hub visual de teste visível
             isUIVisible = true
             print("UI restaurada. MinimizedBox.Visible =", MinimizedBox.Visible)
         end
@@ -191,9 +191,9 @@ end)
 MinimizedBox.MouseButton1Click:Connect(function()
     if not dragging then
         print("MinimizedBox clicado: Restaurando UI.")
-        Window:Show()
-        MinimizedBox.Visible = false
-        SeuHub.Visible = true
+        Window:Show() -- Reabre a janela Fluent
+        MinimizedBox.Visible = false -- Esconde o ícone flutuante
+        SeuHub.Visible = true -- Torna o Hub visual de teste visível
         isUIVisible = true
         print("UI restaurada via clique. MinimizedBox.Visible =", MinimizedBox.Visible)
     end
