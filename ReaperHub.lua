@@ -1,12 +1,11 @@
-
 --!strict
 -- Nome do seu Script/Hub: ReaperHub
--- Versão: 2.11 (Adição de "Criado: ReaperHub" na aba Main)
+-- Versão: 2.12 (Ajuste na URL da Fluent e método de adição de texto)
 
 -- [INÍCIO] --- CARREGAMENTO DA BIBLIOTECA FLUENT (NÃO REMOVA) ---
 local timestamp_fluent = os.time() -- timestamp para forçar cache buster na Fluent
--- Usando a URL de releases da Fluent com o timestamp aplicado para evitar cache
-local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua?v=" .. timestamp_fluent))()
+-- *** MUDANÇA AQUI: Usando a URL do branch 'master' para garantir a versão mais recente ***
+local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/main.lua?v=" .. timestamp_fluent))()
 
 -- Debugging: Verificar se Fluent carregou corretamente
 print("Fluent loaded status: type=", type(Fluent), "is table=", (type(Fluent) == "table"), "has CreateWindow=", (type(Fluent).CreateWindow ~= nil and type(Fluent.CreateWindow) == "function"))
@@ -165,9 +164,10 @@ print("Fluent.Options referenciado.")
 
 -- [INÍCIO] --- CONTEÚDO DA ABA 'MAIN' ---
 do
-    -- Adicionando o texto fixo "Criado: ReaperHub"
-    Tabs.Main:AddLabel("Criado: ReaperHub") -- Isso adiciona um label simples com o texto
-    print("Texto 'Criado: ReaperHub' adicionado à aba Main.")
+    -- *** MUDANÇA AQUI: Usando AddTextBox como alternativa a AddLabel ***
+    -- AddTextBox (texto não editável) é mais garantido em versões mais antigas da Fluent
+    Tabs.Main:AddTextBox("Criado por:", "ReaperHub")
+    print("Texto 'Criado: ReaperHub' adicionado à aba Main usando AddTextBox.")
 end
 -- [FIM] --- CONTEÚDO DA ABA 'MAIN' ---
 
@@ -195,7 +195,7 @@ local function toggleUI()
         SeuHub.Visible = false -- Esconde o Hub visual de teste
         print("SeuHub.Visible após esconder:", SeuHub.Visible)
         isUIVisible = false
-        print("toggleUI: UI minimizada. MinimizedBox.Visible final =", MinimizedBox.MinimizedBox.Visible)
+        print("toggleUI: UI minimizada. MinimizedBox.Visible final =", MinimizedBox.Visible)
     else
         print("toggleUI: Restaurando...")
         Window:Show() -- Reabre a janela Fluent
@@ -205,7 +205,7 @@ local function toggleUI()
         SeuHub.Visible = true -- Torna o Hub visual de teste visível
         print("SeuHub.Visible após tornar visível:", SeuHub.Visible)
         isUIVisible = true
-        print("toggleUI: UI restaurada. MinimizedBox.Visible final =", MinimizedBox.MinimizedBox.Visible)
+        print("toggleUI: UI restaurada. MinimizedBox.Visible final =", MinimizedBox.Visible)
     end
     print("----------------------------------------")
 end
