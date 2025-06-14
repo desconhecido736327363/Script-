@@ -130,7 +130,7 @@ do
         end)(),
         Callback = function(SelectedColorName)
             local selectedColor = colorMap[SelectedColorName]
-            if SeuHub and SeuHub:IsA("GuiObject") and selectedColor then
+            if SeuHub and SeuHub:IsA("GuiObject") then
                 SeuHub.BackgroundColor3 = selectedColor
             end
             print("Cor do Hub alterada para:", SelectedColorName, selectedColor)
