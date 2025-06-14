@@ -1,6 +1,6 @@
 --!strict
 -- Nome do seu Script/Hub: ReaperHub
--- Versão: 1.3 (Cores pré-definidas, Transparência percentual, Hub Visual garantido)
+-- Versão: 1.4 (Ícone e tema de fundo personalizados, cores pré-definidas, transparência percentual)
 
 -- [INÍCIO] --- CARREGAMENTO DA BIBLIOTECA FLUENT (NÃO REMOVA) ---
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
@@ -8,16 +8,21 @@ local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/d
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 -- [FIM] --- CARREGAMENTO DA BIBLIOTECA FLUENT ---
 
--- [INÍCIO] --- REFERÊNCIA AO SEU HUB (MUITO IMPORTANTE!) ---
+-- ====================================================================================================
+-- === CONFIGURAÇÃO DO SEU HUB VISUAL (O FRAME QUE AS OPÇÕES VÃO AFETAR) E IMAGENS ===
+-- ====================================================================================================
+
+-- !!! ATENÇÃO: SUBSTITUA 'YOUR_IMAGE_ASSET_ID_HERE' PELO ID DA SUA IMAGEM NO ROBLOX !!!
+local REAPER_IMAGE_ASSET_ID = "YOUR_IMAGE_ASSET_ID_HERE" -- Ex: "rbxassetid://123456789" (Sem aspas se for só número)
+
+-- [INÍCIO] --- REFERÊNCIA AO SEU HUB VISUAL (MUITO IMPORTANTE!) ---
 -- Este código irá CRIAR um Frame simples para você testar as mudanças de cor/transparência.
--- Se você já tem um Frame/ScreenGui específico que deseja usar, comente este bloco
--- e ajuste a linha de 'WaitForChild' para o nome do seu Frame.
 local SeuHub = Instance.new("Frame")
 SeuHub.Name = "ReaperVisualHub" -- Nome do Frame que será criado para o seu Hub
 SeuHub.Parent = game.Players.LocalPlayer.PlayerGui -- Coloca o Frame na PlayerGui
 SeuHub.Size = UDim2.new(0.3, 0, 0.5, 0) -- Tamanho do Frame (30% da largura, 50% da altura da tela)
 SeuHub.Position = UDim2.new(0.5, 0, 0.5, 0) -- Posição (centralizado)
-SeuHub.BackgroundColor3 = Color3.fromRGB(50, 50, 50) -- Cor inicial padrão
+SeuHub.BackgroundColor3 = Color3.fromRGB(50, 50, 50) -- Cor inicial padrão (será alterada pelas opções)
 SeuHub.BorderSizePixel = 0 -- Remove a borda padrão
 SeuHub.AnchorPoint = Vector2.new(0.5, 0.5) -- Define o ponto de âncora para centralização
 SeuHub.Visible = true -- Garante que esteja visível por padrão
@@ -31,8 +36,29 @@ HubText.TextColor3 = Color3.new(1,1,1)
 HubText.Font = Enum.Font.SourceSansBold
 HubText.TextSize = 20
 HubText.Parent = SeuHub
--- [FIM] --- REFERÊNCIA AO SEU HUB ---
+-- [FIM] --- REFERÊNCIA AO SEU HUB VISUAL ---
 
+-- [INÍCIO] --- CRIAÇÃO DO ÍCONE FLUTUANTE DE MINIMIZAR ---
+local MinimizedBox = Instance.new("ImageButton") -- Usamos ImageButton agora
+MinimizedBox.Name = "ReaperMinimizedIcon"
+MinimizedBox.Size = UDim2.new(0, 70, 0, 70) -- Tamanho do ícone flutuante (ajustado para melhor visualização)
+MinimizedBox.Position = UDim2.new(0.01, 0, 0.5, 0) -- Posição inicial (canto esquerdo-meio)
+MinimizedBox.BackgroundTransparency = 1 -- Tornar o fundo transparente para ver só a imagem
+MinimizedBox.Image = "rbxassetid://" .. REAPER_IMAGE_ASSET_ID -- Sua imagem como ícone
+MinimizedBox.Visible = false -- Começa invisível
+MinimizedBox.Parent = game.Players.LocalPlayer.PlayerGui -- Coloca na PlayerGui
+
+-- Adicionar Corners para torná-lo circular se a imagem for quadrada
+local UICornerMinimize = Instance.new("UICorner")
+UICornerMinimize.CornerRadius = UDim2.new(0.5, 0) -- Torna-o circular
+UICornerMinimize.Parent = MinimizedBox
+
+-- Não precisamos de UIStroke se a imagem já tiver a borda que você quer
+-- [FIM] --- CRIAÇÃO DO ÍCONE FLUTUANTE DE MINIMIZAR ---
+
+-- ====================================================================================================
+-- === CONFIGURAÇÃO DA JANELA PRINCIPAL FLUENT UI ===
+-- ====================================================================================================
 
 -- [INÍCIO] --- CONFIGURAÇÃO DA JANELA PRINCIPAL ---
 local Window = Fluent:CreateWindow({
@@ -44,6 +70,23 @@ local Window = Fluent:CreateWindow({
     Theme = "Dark",
     MinimizeKey = Enum.KeyCode.LeftControl
 })
+
+-- Adicionando a imagem como tema de fundo da janela Fluent UI
+local BackgroundImage = Instance.new("ImageLabel")
+BackgroundImage.Name = "ReaperHubBackground"
+BackgroundImage.Size = UDim2.new(1, 0, 1, 0) -- Preenche toda a janela
+BackgroundImage.BackgroundTransparency = 1 -- Fundo transparente para ver a imagem
+BackgroundImage.Image = "rbxassetid://" .. REAPER_IMAGE_ASSET_ID -- Sua imagem como fundo
+BackgroundImage.ScaleType = Enum.ScaleType.Fit -- Ajusta a imagem sem distorcer
+BackgroundImage.ZIndex = 0 -- Garante que fique atrás de outros elementos
+BackgroundImage.Parent = Window.MainFrame:WaitForChild("Container") -- Coloca na parte principal da janela Fluent
+
+-- Garantir que o texto do Fluent fique visível sobre a imagem
+for _, child in ipairs(BackgroundImage.Parent:GetChildren()) do
+    if child:IsA("TextLabel") or child:IsA("TextButton") or child:IsA("Frame") then
+        child.ZIndex = child.ZIndex + 1 -- Aumenta o ZIndex dos elementos existentes
+    end
+end
 -- [FIM] --- CONFIGURAÇÃO DA JANELA PRINCIPAL ---
 
 -- [INÍCIO] --- CRIAÇÃO DAS ABAS ---
@@ -126,7 +169,6 @@ do
         end
     })
 
-    -- Adicionar as seções de Interface e Configurações dos Add-ons
     InterfaceManager:BuildInterfaceSection(Tabs.Settings)
     SaveManager:BuildConfigSection(Tabs.Settings)
 end
@@ -134,29 +176,6 @@ end
 
 
 -- [INÍCIO] --- FUNCIONALIDADE DE MINIMIZAR PARA ÍCONE FLUTUANTE ---
-local MinimizedBox = Instance.new("TextButton")
-MinimizedBox.Name = "ReaperMinimizedIcon"
-MinimizedBox.Size = UDim2.new(0, 50, 0, 50) -- Tamanho do quadrado flutuante
-MinimizedBox.Position = UDim2.new(0.01, 0, 0.5, 0) -- Posição inicial (canto esquerdo-meio)
-MinimizedBox.BackgroundColor3 = Color3.fromRGB(96, 205, 255) -- Cor inicial do ícone (pode ser ajustada)
-MinimizedBox.BackgroundTransparency = 0.2 -- Um pouco transparente
-MinimizedBox.Text = "R" -- Texto do ícone (Reaper)
-MinimizedBox.TextColor3 = Color3.new(1,1,1)
-MinimizedBox.Font = Enum.Font.SourceSansBold
-MinimizedBox.TextSize = 24
-MinimizedBox.Visible = false -- Começa invisível
-MinimizedBox.Parent = game.Players.LocalPlayer.PlayerGui -- Coloca na PlayerGui
-
--- Adicionar Corners e Strokes para o Fluent Design
-local UICorner = Instance.new("UICorner")
-UICorner.CornerRadius = UDim2.new(0.5, 0) -- Torna-o circular
-UICorner.Parent = MinimizedBox
-
-local UIStroke = Instance.new("UIStroke")
-UIStroke.Color = Color3.fromRGB(0, 120, 212) -- Cor da borda
-UIStroke.Thickness = 2
-UIStroke.Parent = MinimizedBox
-
 -- Evento de clique para reabrir a janela
 MinimizedBox.MouseButton1Click:Connect(function()
     Window:Show() -- Reabre a janela Fluent
@@ -166,13 +185,16 @@ end)
 -- Sobrescrevendo a função de minimizar padrão da Fluent
 Window:OnMinimize(function()
     MinimizedBox.Visible = true -- Torna o ícone flutuante visível
+    -- Opcional: Se o ReaperVisualHub (o frame cinza) também precisar sumir ao minimizar
+    -- SeuHub.Visible = false
 end)
 
--- Certificar que o ícone é escondido quando a janela está visível (ex: ao carregar)
+-- Certificar que o ícone é escondido quando a janela está visível (ex: ao carregar ou reabrir)
 Window:OnShow(function()
     MinimizedBox.Visible = false
+    -- Opcional: Se o ReaperVisualHub (o frame cinza) precisar reaparecer ao reabrir
+    -- SeuHub.Visible = true
 end)
-
 -- [FIM] --- FUNCIONALIDADE DE MINIMIZAR PARA ÍCONE FLUTUANTE ---
 
 
