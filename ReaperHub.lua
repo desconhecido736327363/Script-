@@ -1,12 +1,11 @@
 --!strict
 -- Nome do seu Script/Hub: ReaperHub
--- Versão: 2.2 (Revisão da lógica de minimizar/restaurar e visibilidade)
+-- Versão: 2.3 (Retornando a URL oficial da Fluent com cache buster forte)
 
 -- [INÍCIO] --- CARREGAMENTO DA BIBLIOTECA FLUENT (NÃO REMOVA) ---
 local timestamp_fluent = os.time() -- timestamp para forçar cache buster na Fluent
--- Tentar carregar a Fluent de uma URL de versão específica (1.1.0)
--- Esta URL é de uma versão estável e direta do raw.githubusercontent.com
-local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/1.1.0/src/main.lua?v=" .. timestamp_fluent))()
+-- Retornando para a URL de releases, mas com o timestamp aplicado
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua?v=" .. timestamp_fluent))()
 
 -- Debugging: Verificar se Fluent carregou corretamente
 print("Fluent loaded status: type=", type(Fluent), "is table=", (type(Fluent) == "table"), "has CreateWindow=", (type(Fluent) == "table" and type(Fluent.CreateWindow) == "function"))
@@ -59,8 +58,6 @@ MinimizedBox.Parent = game.Players.LocalPlayer.PlayerGui
 
 -- Propriedades visuais do ícone (mantidas para consistência, mas podem ser ajustadas para a imagem)
 local UICornerMinimize = Instance.new("UICorner")
--- UICorner.CornerRadius espera UDim, mas você passou UDim2 anteriormente.
--- Isso pode ter causado um erro silencioso ou o elemento não aparecendo corretamente.
 UICornerMinimize.CornerRadius = UDim.new(0.5, 0) -- Corrigido para UDim
 UICornerMinimize.Parent = MinimizedBox
 
