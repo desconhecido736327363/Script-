@@ -1,16 +1,16 @@
 --!strict
 -- Nome do seu Script/Hub: ReaperHub
--- Versão: 2.12 (Ajuste na URL da Fluent e método de adição de texto)
+-- Versão: 2.13 (Ajuste para AddTextBox e depuração de visibilidade)
 
 -- [INÍCIO] --- CARREGAMENTO DA BIBLIOTECA FLUENT (NÃO REMOVA) ---
 local timestamp_fluent = os.time() -- timestamp para forçar cache buster na Fluent
--- *** MUDANÇA AQUI: Usando a URL do branch 'master' para garantir a versão mais recente ***
+-- *** Usando a URL do branch 'master' para garantir a versão mais recente ***
 local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/main.lua?v=" .. timestamp_fluent))()
 
 -- Debugging: Verificar se Fluent carregou corretamente
 print("Fluent loaded status: type=", type(Fluent), "is table=", (type(Fluent) == "table"), "has CreateWindow=", (type(Fluent).CreateWindow ~= nil and type(Fluent.CreateWindow) == "function"))
 if not (type(Fluent) == "table" and type(Fluent.CreateWindow) == "function") then
-    warn("Fluent UI library failed to load or is incomplete. Minimizing functionality may not work as expected.")
+    warn("Fluent UI library failed to load or is incomplete. Minimizing functionality may not be expected.")
     warn("Erro: A biblioteca Fluent n\227o carregou corretamente. Fun\231\245es de UI podem estar ausentes.")
     return -- Interrompe o script se a Fluent não carregar, para evitar mais erros
 end
@@ -164,8 +164,7 @@ print("Fluent.Options referenciado.")
 
 -- [INÍCIO] --- CONTEÚDO DA ABA 'MAIN' ---
 do
-    -- *** MUDANÇA AQUI: Usando AddTextBox como alternativa a AddLabel ***
-    -- AddTextBox (texto não editável) é mais garantido em versões mais antigas da Fluent
+    -- Usando AddTextBox para garantir compatibilidade com versões mais antigas da Fluent
     Tabs.Main:AddTextBox("Criado por:", "ReaperHub")
     print("Texto 'Criado: ReaperHub' adicionado à aba Main usando AddTextBox.")
 end
