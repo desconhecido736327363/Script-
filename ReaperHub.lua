@@ -1,6 +1,6 @@
 --!strict
 -- Nome do seu Script/Hub: ReaperHub
--- Versão: 1.6.1 (Correção do erro CornerRadius)
+-- Versão: 1.8 (Ícone de minimizar arrastável)
 
 -- [INÍCIO] --- CARREGAMENTO DA BIBLIOTECA FLUENT (NÃO REMOVA) ---
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
@@ -35,11 +35,11 @@ HubText.TextSize = 20
 HubText.Parent = SeuHub
 -- [FIM] --- REFERÊNCIA AO SEU HUB VISUAL ---
 
--- [INÍCIO] --- CRIAÇÃO DO ÍCONE FLUTUANTE DE MINIMIZAR (Texto) ---
+-- [INÍCIO] --- CRIAÇÃO DO ÍCONE FLUTUANTE DE MINIMIZAR (Texto Arrastável) ---
 local MinimizedBox = Instance.new("TextButton")
 MinimizedBox.Name = "ReaperMinimizedIcon"
 MinimizedBox.Size = UDim2.new(0, 50, 0, 50)
-MinimizedBox.Position = UDim2.new(0.01, 0, 0.5, 0)
+MinimizedBox.Position = UDim2.new(0.01, 0, 0.5, 0) -- Posição inicial (canto esquerdo-meio)
 MinimizedBox.BackgroundColor3 = Color3.fromRGB(96, 205, 255)
 MinimizedBox.BackgroundTransparency = 0.2
 MinimizedBox.Text = "R"
@@ -49,15 +49,58 @@ MinimizedBox.TextSize = 24
 MinimizedBox.Visible = false
 MinimizedBox.Parent = game.Players.LocalPlayer.PlayerGui
 
--- Corrigido: CornerRadius agora usa UDim em vez de UDim2
+-- Propriedades visuais do ícone
 local UICornerMinimize = Instance.new("UICorner")
-UICornerMinimize.CornerRadius = UDim.new(0.5, 0) -- CORREÇÃO AQUI
+UICornerMinimize.CornerRadius = UDim.new(0.5, 0)
 UICornerMinimize.Parent = MinimizedBox
 
 local UIStrokeMinimize = Instance.new("UIStroke")
 UIStrokeMinimize.Color = Color3.fromRGB(0, 120, 212)
 UIStrokeMinimize.Thickness = 2
 UIStrokeMinimize.Parent = MinimizedBox
+
+-- Lógica para arrastar o ícone
+local UserInputService = game:GetService("UserInputService")
+local dragging = false
+local dragStart = Vector2.new(0, 0)
+local initialPosition = UDim2.new(0, 0, 0, 0)
+
+MinimizedBox.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        initialPosition = MinimizedBox.Position
+        input.Handled = true -- Impede que cliques passem para outros elementos
+    end
+end)
+
+MinimizedBox.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        if dragging then
+            local delta = input.Position - dragStart
+            local newX = initialPosition.X.Offset + delta.X
+            local newY = initialPosition.Y.Offset + delta.Y
+
+            -- Limitar o ícone dentro da tela
+            local screenX = game.Players.LocalPlayer.PlayerGui.AbsoluteSize.X
+            local screenY = game.Players.LocalPlayer.PlayerGui.AbsoluteSize.Y
+            local iconSizeX = MinimizedBox.AbsoluteSize.X
+            local iconSizeY = MinimizedBox.AbsoluteSize.Y
+
+            newX = math.max(0, math.min(newX, screenX - iconSizeX))
+            newY = math.max(0, math.min(newY, screenY - iconSizeY))
+
+            MinimizedBox.Position = UDim2.new(0, newX, 0, newY)
+        end
+    end
+end)
+
+MinimizedBox.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = false
+    end
+end)
+
 -- [FIM] --- CRIAÇÃO DO ÍCONE FLUTUANTE DE MINIMIZAR ---
 
 -- ====================================================================================================
@@ -92,69 +135,10 @@ end
 -- [FIM] --- CONTEÚDO DA ABA 'MAIN' ---
 
 
--- [INÍCIO] --- CONTEÚDO DA ABA 'CONFIGURAÇÕES' ---
+-- [INÍCIO] --- CONTEÚDO DA ABA 'CONFIGURAÇÕES' (AGORA VAZIA) ---
 do
-    Tabs.Settings:AddParagraph({
-        Title = "Aparência do Hub",
-        Content = "Ajuste as configurações visuais do seu Hub Reaper."
-    })
-
-    -- Cores pré-definidas (os valores Color3.fromRGB() são as cores RGB)
-    local predefinedColors = {
-        {"Azul Claro", Color3.fromRGB(96, 205, 255)},
-        {"Verde", Color3.fromRGB(100, 200, 100)},
-        {"Vermelho", Color3.fromRGB(200, 80, 80)},
-        {"Amarelo", Color3.fromRGB(255, 255, 100)},
-        {"Roxo", Color3.fromRGB(150, 100, 200)}
-    }
-
-    -- Mapeia os nomes das cores para os valores Color3
-    local colorMap = {}
-    local defaultColorName = predefinedColors[1][1]
-    for _, colorInfo in ipairs(predefinedColors) do
-        colorMap[colorInfo[1]] = colorInfo[2]
-    end
-
-    -- Seletor de cor para o hub (Dropdown)
-    local HubColorDropdown = Tabs.Settings:AddDropdown("HubColor", {
-        Title = "Cor do Hub",
-        Default = defaultColorName,
-        Values = (function()
-            local names = {}
-            for _, colorInfo in ipairs(predefinedColors) do
-                table.insert(names, colorInfo[1])
-            end
-            return names
-        end)(),
-        Callback = function(SelectedColorName)
-            local selectedColor = colorMap[SelectedColorName]
-            if SeuHub and SeuHub:IsA("GuiObject") then
-                SeuHub.BackgroundColor3 = selectedColor
-            end
-            print("Cor do Hub alterada para:", SelectedColorName, selectedColor)
-        end
-    })
-
-    -- Slider de Transparência (10% a 100%, pulando de 10 em 10%)
-    local HubTransparencySlider = Tabs.Settings:AddSlider("HubTransparency", {
-        Title = "Transparência do Hub",
-        Description = "Ajuste a transparência geral do Hub (100% visível a 10% visível).",
-        Default = 100,
-        Min = 10,
-        Max = 100,
-        Rounding = 0,
-        Compact = false,
-        Callback = function(Value)
-            local transparency = 1 - (Value / 100)
-            if SeuHub and SeuHub:IsA("GuiObject") then
-                SeuHub.BackgroundTransparency = transparency
-            end
-            print("Transparência do Hub alterada para:", Value .. "% visível")
-        end
-    })
-
-    InterfaceManager:BuildInterfaceSection(Tabs.Settings)
-    SaveManager:BuildConfigSection(Tabs.Settings)
+    -- Todo o conteúdo anterior da aba 'Configurações' foi removido aqui.
+    -- Se quiser adicionar algo no futuro, pode fazer aqui.
 end
 -- [FIM] --- CONTEÚDO DA ABA 'CONFIGURAÇÕES' ---
 
@@ -162,13 +146,16 @@ end
 -- [INÍCIO] --- FUNCIONALIDADE DE MINIMIZAR PARA ÍCONE FLUTUANTE ---
 -- Evento de clique para reabrir a janela
 MinimizedBox.MouseButton1Click:Connect(function()
-    Window:Show()
-    MinimizedBox.Visible = false
+    -- Certifica-se de que não estamos arrastando quando o clique é liberado
+    if not dragging then
+        Window:Show() -- Reabre a janela Fluent
+        MinimizedBox.Visible = false -- Esconde o ícone flutuante
+    end
 end)
 
 -- Sobrescrevendo a função de minimizar padrão da Fluent
 Window:OnMinimize(function()
-    MinimizedBox.Visible = true
+    MinimizedBox.Visible = true -- Torna o ícone flutuante visível
     -- SeuHub.Visible = false
 end)
 
@@ -181,6 +168,7 @@ end)
 
 
 -- [INÍCIO] --- CONFIGURAÇÃO E INTEGRAÇÃO DE ADD-ONS ---
+-- As chamadas BuildInterfaceSection e BuildConfigSection para a aba Settings foram removidas daqui.
 SaveManager:SetLibrary(Fluent)
 InterfaceManager:SetLibrary(Fluent)
 
