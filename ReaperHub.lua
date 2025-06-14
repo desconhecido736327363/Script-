@@ -1,9 +1,10 @@
 --!strict
 -- Nome do seu Script/Hub: ReaperHub
--- Versão: 1.9.1 (Ícone de minimizar com Asset ID definido)
+-- Versão: 1.9.3 (Tentativa de correção OnMinimize - Fluent URL alternativa)
 
 -- [INÍCIO] --- CARREGAMENTO DA BIBLIOTECA FLUENT (NÃO REMOVA) ---
-local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+-- Usando uma URL alternativa para o carregamento da Fluent para tentar contornar problemas de cache/compatibilidade
+local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/src/main.lua"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 -- [FIM] --- CARREGAMENTO DA BIBLIOTECA FLUENT ---
@@ -41,7 +42,7 @@ MinimizedBox.Name = "ReaperMinimizedIcon"
 MinimizedBox.Size = UDim2.new(0, 50, 0, 50)
 MinimizedBox.Position = UDim2.new(0.01, 0, 0.5, 0) -- Posição inicial (canto esquerdo-meio)
 MinimizedBox.BackgroundTransparency = 1 -- Fundo transparente para mostrar apenas a imagem
-MinimizedBox.Image = "rbxassetid://105362230092644" -- <<< SEU ASSET ID AGORA ESTÁ AQUI!
+MinimizedBox.Image = "rbxassetid://105362230092644" -- SEU ASSET ID AGORA ESTÁ AQUI!
 MinimizedBox.ImageTransparency = 0 -- Imagem totalmente visível
 MinimizedBox.Visible = false
 MinimizedBox.Parent = game.Players.LocalPlayer.PlayerGui
