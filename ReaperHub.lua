@@ -1,6 +1,6 @@
 --!strict
 -- Nome do seu Script/Hub: ReaperHub
--- Versão: 1.6 (Correção do erro CornerRadius)
+-- Versão: 1.6.1 (Correção do erro CornerRadius)
 
 -- [INÍCIO] --- CARREGAMENTO DA BIBLIOTECA FLUENT (NÃO REMOVA) ---
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
@@ -51,7 +51,7 @@ MinimizedBox.Parent = game.Players.LocalPlayer.PlayerGui
 
 -- Corrigido: CornerRadius agora usa UDim em vez de UDim2
 local UICornerMinimize = Instance.new("UICorner")
-UICornerMinimize.CornerRadius = UDim.new(0.5, 0) -- CORREÇÃO AQUI: UDim.new(scale, offset)
+UICornerMinimize.CornerRadius = UDim.new(0.5, 0) -- CORREÇÃO AQUI
 UICornerMinimize.Parent = MinimizedBox
 
 local UIStrokeMinimize = Instance.new("UIStroke")
