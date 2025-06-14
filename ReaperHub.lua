@@ -1,6 +1,6 @@
 --!strict
 -- Nome do seu Script/Hub: ReaperHub
--- Versão: 2.10 (Depurando chamada de toggleUI e visibilidade)
+-- Versão: 2.11 (Adição de "Criado: ReaperHub" na aba Main)
 
 -- [INÍCIO] --- CARREGAMENTO DA BIBLIOTECA FLUENT (NÃO REMOVA) ---
 local timestamp_fluent = os.time() -- timestamp para forçar cache buster na Fluent
@@ -20,7 +20,7 @@ print("Fluent carregado com sucesso, prosseguindo com SaveManager e InterfaceMan
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua?v=" .. timestamp_fluent))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua?v=" .. timestamp_fluent))()
 print("SaveManager e InterfaceManager carregados.")
--- [FIM] --- CARREGAMENTO DA BIBLIENTRO ---
+-- [FIM] --- CARREGAMENTO DA BIBLIOTECA FLUENT ---
 
 -- ====================================================================================================
 -- === CONFIGURAÇÃO DO SEU HUB VISUAL (O FRAME QUE AS OPÇÕES VÃO AFETAR) ===
@@ -164,7 +164,9 @@ print("Fluent.Options referenciado.")
 
 -- [INÍCIO] --- CONTEÚDO DA ABA 'MAIN' ---
 do
-    -- Sem conteúdo inicial
+    -- Adicionando o texto fixo "Criado: ReaperHub"
+    Tabs.Main:AddLabel("Criado: ReaperHub") -- Isso adiciona um label simples com o texto
+    print("Texto 'Criado: ReaperHub' adicionado à aba Main.")
 end
 -- [FIM] --- CONTEÚDO DA ABA 'MAIN' ---
 
@@ -192,7 +194,7 @@ local function toggleUI()
         SeuHub.Visible = false -- Esconde o Hub visual de teste
         print("SeuHub.Visible após esconder:", SeuHub.Visible)
         isUIVisible = false
-        print("toggleUI: UI minimizada. MinimizedBox.Visible final =", MinimizedBox.Visible)
+        print("toggleUI: UI minimizada. MinimizedBox.Visible final =", MinimizedBox.MinimizedBox.Visible)
     else
         print("toggleUI: Restaurando...")
         Window:Show() -- Reabre a janela Fluent
@@ -202,7 +204,7 @@ local function toggleUI()
         SeuHub.Visible = true -- Torna o Hub visual de teste visível
         print("SeuHub.Visible após tornar visível:", SeuHub.Visible)
         isUIVisible = true
-        print("toggleUI: UI restaurada. MinimizedBox.Visible final =", MinimizedBox.Visible)
+        print("toggleUI: UI restaurada. MinimizedBox.Visible final =", MinimizedBox.MinimizedBox.Visible)
     end
     print("----------------------------------------")
 end
