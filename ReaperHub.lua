@@ -1,6 +1,6 @@
 --!strict
 -- Nome do seu Script/Hub: ReaperHub
--- Versão: 2.7 (Minimizar/Restaurar via botão na tela para Mobile)
+-- Versão: 2.10 (Depurando chamada de toggleUI e visibilidade)
 
 -- [INÍCIO] --- CARREGAMENTO DA BIBLIOTECA FLUENT (NÃO REMOVA) ---
 local timestamp_fluent = os.time() -- timestamp para forçar cache buster na Fluent
@@ -8,7 +8,7 @@ local timestamp_fluent = os.time() -- timestamp para forçar cache buster na Flu
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua?v=" .. timestamp_fluent))()
 
 -- Debugging: Verificar se Fluent carregou corretamente
-print("Fluent loaded status: type=", type(Fluent), "is table=", (type(Fluent) == "table"), "has CreateWindow=", (type(Fluent) == "table" and type(Fluent.CreateWindow) == "function"))
+print("Fluent loaded status: type=", type(Fluent), "is table=", (type(Fluent) == "table"), "has CreateWindow=", (type(Fluent).CreateWindow ~= nil and type(Fluent.CreateWindow) == "function"))
 if not (type(Fluent) == "table" and type(Fluent.CreateWindow) == "function") then
     warn("Fluent UI library failed to load or is incomplete. Minimizing functionality may not work as expected.")
     warn("Erro: A biblioteca Fluent n\227o carregou corretamente. Fun\231\245es de UI podem estar ausentes.")
@@ -20,7 +20,7 @@ print("Fluent carregado com sucesso, prosseguindo com SaveManager e InterfaceMan
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua?v=" .. timestamp_fluent))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua?v=" .. timestamp_fluent))()
 print("SaveManager e InterfaceManager carregados.")
--- [FIM] --- CARREGAMENTO DA BIBLIOTECA FLUENT ---
+-- [FIM] --- CARREGAMENTO DA BIBLIENTRO ---
 
 -- ====================================================================================================
 -- === CONFIGURAÇÃO DO SEU HUB VISUAL (O FRAME QUE AS OPÇÕES VÃO AFETAR) ===
@@ -36,7 +36,7 @@ SeuHub.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 SeuHub.BorderSizePixel = 0
 SeuHub.AnchorPoint = Vector2.new(0.5, 0.5)
 SeuHub.Visible = true
-print("SeuHub (Frame visual) criado e visível.")
+print("SeuHub (Frame visual) criado. Visibilidade inicial:", SeuHub.Visible)
 
 local HubText = Instance.new("TextLabel")
 HubText.Text = "Meu Hub de Teste"
@@ -96,7 +96,7 @@ MinimizedBox.InputBegan:Connect(function(input)
         dragStart = input.Position
         initialPosition = MinimizedBox.Position
         input.Handled = true
-        print("Arrastando MinimizedBox: INICIADO")
+        print("MinimizedBox InputBegan: Arrastando INICIADO. dragging =", dragging)
     end
 end)
 
@@ -123,7 +123,7 @@ end)
 MinimizedBox.InputEnded:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
         dragging = false
-        print("Arrastando MinimizedBox: ENCERRADO")
+        print("MinimizedBox InputEnded: Arrastando ENCERRADO. dragging =", dragging)
     end
 end)
 
@@ -181,40 +181,46 @@ local isUIVisible = true
 
 -- Função para alternar a visibilidade do Hub e do ícone
 local function toggleUI()
+    print("----------------------------------------")
+    print("toggleUI: FUNÇÃO INICIADA. isUIVisible =", isUIVisible)
     if isUIVisible then
-        print("Alternando UI: Minimizando.")
+        print("toggleUI: Minimizando...")
         Window:Hide() -- Esconde a janela Fluent
+        print("Window.Visible após Hide():", Window.Visible)
         MinimizedBox.Visible = true -- Torna o ícone flutuante visível
+        print("MinimizedBox.Visible após tornar visível:", MinimizedBox.Visible)
         SeuHub.Visible = false -- Esconde o Hub visual de teste
+        print("SeuHub.Visible após esconder:", SeuHub.Visible)
         isUIVisible = false
-        print("UI minimizada. MinimizedBox.Visible =", MinimizedBox.Visible)
+        print("toggleUI: UI minimizada. MinimizedBox.Visible final =", MinimizedBox.Visible)
     else
-        print("Alternando UI: Restaurando.")
+        print("toggleUI: Restaurando...")
         Window:Show() -- Reabre a janela Fluent
+        print("Window.Visible após Show():", Window.Visible)
         MinimizedBox.Visible = false -- Esconde o ícone flutuante
+        print("MinimizedBox.Visible após esconder:", MinimizedBox.Visible)
         SeuHub.Visible = true -- Torna o Hub visual de teste visível
+        print("SeuHub.Visible após tornar visível:", SeuHub.Visible)
         isUIVisible = true
-        print("UI restaurada. MinimizedBox.Visible =", MinimizedBox.Visible)
+        print("toggleUI: UI restaurada. MinimizedBox.Visible final =", MinimizedBox.Visible)
     end
+    print("----------------------------------------")
 end
-
--- Remover o InputBegan para LeftControl, já que usaremos o botão
--- UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
---     if input.KeyCode == Enum.KeyCode.LeftControl and not gameProcessedEvent then
---         toggleUI()
---     end
--- end)
 
 -- Conectar a função toggleUI ao novo botão dentro do SeuHub
 MinimizeButtonInHub.MouseButton1Click:Connect(function()
+    print("Botão 'Minimizar/Restaurar' no SeuHub clicado! Chamando toggleUI().")
     toggleUI()
 end)
 
 -- Evento de clique no ícone para restaurar a janela
 MinimizedBox.MouseButton1Click:Connect(function()
+    print("MinimizedBox MouseButton1Click disparado. dragging =", dragging)
     if not dragging then
-        print("MinimizedBox clicado: Restaurando UI.")
+        print("MinimizedBox clicado: Restaurando UI. Chamando toggleUI().")
         toggleUI() -- Usa a mesma função para restaurar
+    else
+        print("MinimizedBox clicado, mas dragging ainda é TRUE. Não restaurando.")
     end
 end)
 -- [FIM] --- FUNCIONALIDADE DE MINIMIZAR/RESTAURAR MANUALMENTE ---
