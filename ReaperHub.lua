@@ -1,10 +1,11 @@
 --!strict
 -- Nome do seu Script/Hub: ReaperHub
--- Versão: 1.9.3 (Tentativa de correção OnMinimize - Fluent URL alternativa)
+-- Versão: 1.9.4 (Corrigindo HTTP 404 - Fluent URL Original com Cache Buster Reforçado)
 
 -- [INÍCIO] --- CARREGAMENTO DA BIBLIOTECA FLUENT (NÃO REMOVA) ---
--- Usando uma URL alternativa para o carregamento da Fluent para tentar contornar problemas de cache/compatibilidade
-local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/src/main.lua"))()
+local timestamp_fluent = os.time() -- timestamp para forçar cache buster na Fluent
+-- Voltando para a URL de releases, mas com o timestamp aplicado
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua?v=" .. timestamp_fluent))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 -- [FIM] --- CARREGAMENTO DA BIBLIOTECA FLUENT ---
