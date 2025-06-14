@@ -1,10 +1,10 @@
 --!strict
 -- Nome do seu Script/Hub: ReaperHub
--- Versão: 2.3 (Retornando a URL oficial da Fluent com cache buster forte)
+-- Versão: 2.4 (Depurando "attempt to index nil with 'Name'" e testando visibilidade)
 
 -- [INÍCIO] --- CARREGAMENTO DA BIBLIOTECA FLUENT (NÃO REMOVA) ---
 local timestamp_fluent = os.time() -- timestamp para forçar cache buster na Fluent
--- Retornando para a URL de releases, mas com o timestamp aplicado
+-- Usando a URL de releases da Fluent com o timestamp aplicado para evitar cache
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua?v=" .. timestamp_fluent))()
 
 -- Debugging: Verificar se Fluent carregou corretamente
@@ -12,10 +12,12 @@ print("Fluent loaded status: type=", type(Fluent), "is table=", (type(Fluent) ==
 if not (type(Fluent) == "table" and type(Fluent.CreateWindow) == "function") then
     warn("Fluent UI library failed to load or is incomplete. Minimizing functionality may not work as expected.")
     warn("Erro: A biblioteca Fluent n\227o carregou corretamente. Fun\231\245es de UI podem estar ausentes.")
+    return -- Interrompe o script se a Fluent não carregar, para evitar mais erros
 end
 
-local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
-local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
+-- Os SaveManager e InterfaceManager também dependem da Fluent, vamos garantir que eles também carreguem via HTTPS
+local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua?v=" .. timestamp_fluent))()
+local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua?v=" .. timestamp_fluent))()
 -- [FIM] --- CARREGAMENTO DA BIBLIOTECA FLUENT ---
 
 -- ====================================================================================================
@@ -115,15 +117,23 @@ end)
 -- ====================================================================================================
 
 -- [INÍCIO] --- CONFIGURAÇÃO DA JANELA PRINCIPAL ---
-local Window = Fluent:CreateWindow({
-    Title = "Reaper",
-    SubTitle = "",
-    TabWidth = 160,
-    Size = UDim2.fromOffset(580, 460),
-    Acrylic = true,
-    Theme = "Dark",
-    -- REMOVIDO: MinimizeKey = Enum.KeyCode.LeftControl - Vamos gerenciar manualmente
-})
+-- Verifica se Fluent existe antes de tentar criar a janela
+local Window
+if Fluent and type(Fluent.CreateWindow) == "function" then
+    Window = Fluent:CreateWindow({
+        Title = "Reaper",
+        SubTitle = "",
+        TabWidth = 160,
+        Size = UDim2.fromOffset(580, 460),
+        Acrylic = true,
+        Theme = "Dark",
+        -- REMOVIDO: MinimizeKey = Enum.KeyCode.LeftControl - Vamos gerenciar manualmente
+    })
+else
+    warn("Fluent.CreateWindow is not available. UI Window will not be created.")
+    -- Pode adicionar uma GUI de fallback aqui se a Fluent falhar completamente
+    return -- Interrompe o script se a janela principal não puder ser criada
+end
 -- [FIM] --- CONFIGURAÇÃO DA JANELA PRINCIPAL ---
 
 -- [INÍCIO] --- CRIAÇÃO DAS ABAS ---
