@@ -1,6 +1,6 @@
 --!strict
 -- Nome do seu Script/Hub: ReaperHub
--- Versão: 1.4 (Ícone e tema de fundo personalizados, cores pré-definidas, transparência percentual)
+-- Versão: 1.5 (Removidas as funcionalidades de imagem/tema/ícone personalizado)
 
 -- [INÍCIO] --- CARREGAMENTO DA BIBLIOTECA FLUENT (NÃO REMOVA) ---
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
@@ -9,11 +9,8 @@ local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.
 -- [FIM] --- CARREGAMENTO DA BIBLIOTECA FLUENT ---
 
 -- ====================================================================================================
--- === CONFIGURAÇÃO DO SEU HUB VISUAL (O FRAME QUE AS OPÇÕES VÃO AFETAR) E IMAGENS ===
+-- === CONFIGURAÇÃO DO SEU HUB VISUAL (O FRAME QUE AS OPÇÕES VÃO AFETAR) ===
 -- ====================================================================================================
-
--- !!! ATENÇÃO: SUBSTITUA 'YOUR_IMAGE_ASSET_ID_HERE' PELO ID DA SUA IMAGEM NO ROBLOX !!!
-local REAPER_IMAGE_ASSET_ID = "YOUR_IMAGE_ASSET_ID_HERE" -- Ex: "rbxassetid://123456789" (Sem aspas se for só número)
 
 -- [INÍCIO] --- REFERÊNCIA AO SEU HUB VISUAL (MUITO IMPORTANTE!) ---
 -- Este código irá CRIAR um Frame simples para você testar as mudanças de cor/transparência.
@@ -38,22 +35,29 @@ HubText.TextSize = 20
 HubText.Parent = SeuHub
 -- [FIM] --- REFERÊNCIA AO SEU HUB VISUAL ---
 
--- [INÍCIO] --- CRIAÇÃO DO ÍCONE FLUTUANTE DE MINIMIZAR ---
-local MinimizedBox = Instance.new("ImageButton") -- Usamos ImageButton agora
+-- [INÍCIO] --- CRIAÇÃO DO ÍCONE FLUTUANTE DE MINIMIZAR (Texto) ---
+local MinimizedBox = Instance.new("TextButton") -- De volta para TextButton
 MinimizedBox.Name = "ReaperMinimizedIcon"
-MinimizedBox.Size = UDim2.new(0, 70, 0, 70) -- Tamanho do ícone flutuante (ajustado para melhor visualização)
+MinimizedBox.Size = UDim2.new(0, 50, 0, 50) -- Tamanho do quadrado flutuante
 MinimizedBox.Position = UDim2.new(0.01, 0, 0.5, 0) -- Posição inicial (canto esquerdo-meio)
-MinimizedBox.BackgroundTransparency = 1 -- Tornar o fundo transparente para ver só a imagem
-MinimizedBox.Image = "rbxassetid://" .. REAPER_IMAGE_ASSET_ID -- Sua imagem como ícone
+MinimizedBox.BackgroundColor3 = Color3.fromRGB(96, 205, 255) -- Cor do ícone
+MinimizedBox.BackgroundTransparency = 0.2 -- Um pouco transparente
+MinimizedBox.Text = "R" -- Texto do ícone (Reaper)
+MinimizedBox.TextColor3 = Color3.new(1,1,1)
+MinimizedBox.Font = Enum.Font.SourceSansBold
+MinimizedBox.TextSize = 24
 MinimizedBox.Visible = false -- Começa invisível
 MinimizedBox.Parent = game.Players.LocalPlayer.PlayerGui -- Coloca na PlayerGui
 
--- Adicionar Corners para torná-lo circular se a imagem for quadrada
+-- Adicionar Corners e Strokes para o Fluent Design
 local UICornerMinimize = Instance.new("UICorner")
 UICornerMinimize.CornerRadius = UDim2.new(0.5, 0) -- Torna-o circular
 UICornerMinimize.Parent = MinimizedBox
 
--- Não precisamos de UIStroke se a imagem já tiver a borda que você quer
+local UIStrokeMinimize = Instance.new("UIStroke")
+UIStrokeMinimize.Color = Color3.fromRGB(0, 120, 212) -- Cor da borda
+UIStrokeMinimize.Thickness = 2
+UIStrokeMinimize.Parent = MinimizedBox
 -- [FIM] --- CRIAÇÃO DO ÍCONE FLUTUANTE DE MINIMIZAR ---
 
 -- ====================================================================================================
@@ -71,22 +75,7 @@ local Window = Fluent:CreateWindow({
     MinimizeKey = Enum.KeyCode.LeftControl
 })
 
--- Adicionando a imagem como tema de fundo da janela Fluent UI
-local BackgroundImage = Instance.new("ImageLabel")
-BackgroundImage.Name = "ReaperHubBackground"
-BackgroundImage.Size = UDim2.new(1, 0, 1, 0) -- Preenche toda a janela
-BackgroundImage.BackgroundTransparency = 1 -- Fundo transparente para ver a imagem
-BackgroundImage.Image = "rbxassetid://" .. REAPER_IMAGE_ASSET_ID -- Sua imagem como fundo
-BackgroundImage.ScaleType = Enum.ScaleType.Fit -- Ajusta a imagem sem distorcer
-BackgroundImage.ZIndex = 0 -- Garante que fique atrás de outros elementos
-BackgroundImage.Parent = Window.MainFrame:WaitForChild("Container") -- Coloca na parte principal da janela Fluent
-
--- Garantir que o texto do Fluent fique visível sobre a imagem
-for _, child in ipairs(BackgroundImage.Parent:GetChildren()) do
-    if child:IsA("TextLabel") or child:IsA("TextButton") or child:IsA("Frame") then
-        child.ZIndex = child.ZIndex + 1 -- Aumenta o ZIndex dos elementos existentes
-    end
-end
+-- REMOVIDO: Código de BackgroundImage
 -- [FIM] --- CONFIGURAÇÃO DA JANELA PRINCIPAL ---
 
 -- [INÍCIO] --- CRIAÇÃO DAS ABAS ---
@@ -128,7 +117,7 @@ do
         colorMap[colorInfo[1]] = colorInfo[2]
     end
 
-    -- Seletor de cor para o hub (agora um Dropdown)
+    -- Seletor de cor para o hub (Dropdown)
     local HubColorDropdown = Tabs.Settings:AddDropdown("HubColor", {
         Title = "Cor do Hub",
         Default = defaultColorName, -- Usa o nome da cor padrão
@@ -158,9 +147,6 @@ do
         Rounding = 0, -- Sem casas decimais para pular de 10 em 10
         Compact = false,
         Callback = function(Value)
-            -- Converte a porcentagem (10-100) para transparência (0.9 a 0)
-            -- Ex: 100% visível (Value=100) -> Transparência = 1 - (100/100) = 0
-            -- Ex: 10% visível (Value=10) -> Transparência = 1 - (10/100) = 0.9
             local transparency = 1 - (Value / 100)
             if SeuHub and SeuHub:IsA("GuiObject") then
                 SeuHub.BackgroundTransparency = transparency
@@ -185,15 +171,13 @@ end)
 -- Sobrescrevendo a função de minimizar padrão da Fluent
 Window:OnMinimize(function()
     MinimizedBox.Visible = true -- Torna o ícone flutuante visível
-    -- Opcional: Se o ReaperVisualHub (o frame cinza) também precisar sumir ao minimizar
-    -- SeuHub.Visible = false
+    -- SeuHub.Visible = false -- Opcional: Descomente para esconder o frame de teste ao minimizar
 end)
 
 -- Certificar que o ícone é escondido quando a janela está visível (ex: ao carregar ou reabrir)
 Window:OnShow(function()
     MinimizedBox.Visible = false
-    -- Opcional: Se o ReaperVisualHub (o frame cinza) precisar reaparecer ao reabrir
-    -- SeuHub.Visible = true
+    -- SeuHub.Visible = true -- Opcional: Descomente para mostrar o frame de teste ao reabrir
 end)
 -- [FIM] --- FUNCIONALIDADE DE MINIMIZAR PARA ÍCONE FLUTUANTE ---
 
