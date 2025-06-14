@@ -1,6 +1,6 @@
 --!strict
 -- Nome do seu Script/Hub: ReaperHub
--- Versão: 2.6 (Visibilidade final do ícone de minimizar)
+-- Versão: 2.7 (Minimizar/Restaurar via botão na tela para Mobile)
 
 -- [INÍCIO] --- CARREGAMENTO DA BIBLIOTECA FLUENT (NÃO REMOVA) ---
 local timestamp_fluent = os.time() -- timestamp para forçar cache buster na Fluent
@@ -46,6 +46,19 @@ HubText.TextColor3 = Color3.new(1,1,1)
 HubText.Font = Enum.Font.SourceSansBold
 HubText.TextSize = 20
 HubText.Parent = SeuHub
+
+-- Novo botão para minimizar/restaurar no SeuHub
+local MinimizeButtonInHub = Instance.new("TextButton")
+MinimizeButtonInHub.Name = "MinimizeRestoreButton"
+MinimizeButtonInHub.Text = "Minimizar/Restaurar"
+MinimizeButtonInHub.Size = UDim2.new(0.8, 0, 0.1, 0)
+MinimizeButtonInHub.Position = UDim2.new(0.1, 0, 0.9, 0) -- Posição na parte inferior do SeuHub
+MinimizeButtonInHub.BackgroundColor3 = Color3.fromRGB(0, 120, 212)
+MinimizeButtonInHub.TextColor3 = Color3.new(1, 1, 1)
+MinimizeButtonInHub.Font = Enum.Font.SourceSansBold
+MinimizeButtonInHub.TextSize = 18
+MinimizeButtonInHub.Parent = SeuHub
+print("Botão 'Minimizar/Restaurar' adicionado ao SeuHub.")
 -- [FIM] --- REFERÊNCIA AO SEU HUB VISUAL ---
 
 -- [INÍCIO] --- CRIAÇÃO DO ÍCONE FLUTUANTE DE MINIMIZAR (Imagem Arrastável) ---
@@ -54,13 +67,11 @@ MinimizedBox.Name = "ReaperMinimizedIcon"
 MinimizedBox.Size = UDim2.new(0, 50, 0, 50)
 MinimizedBox.Position = UDim2.new(0.01, 0, 0.5, 0) -- Posição inicial (canto esquerdo-meio)
 MinimizedBox.BackgroundTransparency = 1 -- Fundo transparente para mostrar apenas a imagem
-MinimizedBox.Image = "rbxassetid://105362230092644" -- SEU ASSET ID AGORA ESTÁ AQUI!
+MinimizedBox.Image = "rbxassetid://105362230092644" -- SEU ASSET ID
 MinimizedBox.ImageTransparency = 0 -- Imagem totalmente visível
-MinimizedBox.Visible = false -- DEVOLVIDO AO ESTADO INICIAL: Inicia invisível novamente
+MinimizedBox.Visible = false -- Inicia invisível
 MinimizedBox.Parent = game.Players.LocalPlayer.PlayerGui
 print("MinimizedBox (ícone de minimizar) criado. Visibilidade inicial:", MinimizedBox.Visible)
-print("MinimizedBox AbsolutePosition:", MinimizedBox.AbsolutePosition)
-print("MinimizedBox AbsoluteSize:", MinimizedBox.AbsoluteSize)
 
 local UICornerMinimize = Instance.new("UICorner")
 UICornerMinimize.CornerRadius = UDim.new(0.5, 0)
@@ -168,34 +179,42 @@ end
 -- [INÍCIO] --- FUNCIONALIDADE DE MINIMIZAR/RESTAURAR MANUALMENTE ---
 local isUIVisible = true
 
-UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
-    if input.KeyCode == Enum.KeyCode.LeftControl and not gameProcessedEvent then
-        if isUIVisible then
-            print("LeftControl pressionado: Minimizando UI.")
-            Window:Hide() -- Esconde a janela Fluent
-            MinimizedBox.Visible = true -- Torna o ícone flutuante visível
-            SeuHub.Visible = false -- Esconde o Hub visual de teste
-            isUIVisible = false
-            print("UI minimizada. MinimizedBox.Visible =", MinimizedBox.Visible)
-        else
-            print("LeftControl pressionado: Restaurando UI.")
-            Window:Show() -- Reabre a janela Fluent
-            MinimizedBox.Visible = false -- Esconde o ícone flutuante
-            SeuHub.Visible = true -- Torna o Hub visual de teste visível
-            isUIVisible = true
-            print("UI restaurada. MinimizedBox.Visible =", MinimizedBox.Visible)
-        end
-    end
-end)
-
-MinimizedBox.MouseButton1Click:Connect(function()
-    if not dragging then
-        print("MinimizedBox clicado: Restaurando UI.")
+-- Função para alternar a visibilidade do Hub e do ícone
+local function toggleUI()
+    if isUIVisible then
+        print("Alternando UI: Minimizando.")
+        Window:Hide() -- Esconde a janela Fluent
+        MinimizedBox.Visible = true -- Torna o ícone flutuante visível
+        SeuHub.Visible = false -- Esconde o Hub visual de teste
+        isUIVisible = false
+        print("UI minimizada. MinimizedBox.Visible =", MinimizedBox.Visible)
+    else
+        print("Alternando UI: Restaurando.")
         Window:Show() -- Reabre a janela Fluent
         MinimizedBox.Visible = false -- Esconde o ícone flutuante
         SeuHub.Visible = true -- Torna o Hub visual de teste visível
         isUIVisible = true
-        print("UI restaurada via clique. MinimizedBox.Visible =", MinimizedBox.Visible)
+        print("UI restaurada. MinimizedBox.Visible =", MinimizedBox.Visible)
+    end
+end
+
+-- Remover o InputBegan para LeftControl, já que usaremos o botão
+-- UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
+--     if input.KeyCode == Enum.KeyCode.LeftControl and not gameProcessedEvent then
+--         toggleUI()
+--     end
+-- end)
+
+-- Conectar a função toggleUI ao novo botão dentro do SeuHub
+MinimizeButtonInHub.MouseButton1Click:Connect(function()
+    toggleUI()
+end)
+
+-- Evento de clique no ícone para restaurar a janela
+MinimizedBox.MouseButton1Click:Connect(function()
+    if not dragging then
+        print("MinimizedBox clicado: Restaurando UI.")
+        toggleUI() -- Usa a mesma função para restaurar
     end
 end)
 -- [FIM] --- FUNCIONALIDADE DE MINIMIZAR/RESTAURAR MANUALMENTE ---
